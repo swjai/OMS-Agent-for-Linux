@@ -29,6 +29,16 @@ module Fluent
     end
 
     def filter(tag, time, record)
+      begin
+        File.delete("/tmp/az-update-security.list")
+        puts "File deleted successfully"
+      rescue Exception => e
+        if e.errno!=2 #except no such file or directory issue. Errno: ENOENT = 2
+          puts "Caught issues in deleting /tmp/az-update-security.list file. Assessment corrupted."
+          raise e
+        end
+      end
+
       xml_string = record['xml']
       @log.debug "LinuxUpdates : Filtering xml size=#{xml_string.size}"
       linuxUpdates = LinuxUpdates.new(@log)
